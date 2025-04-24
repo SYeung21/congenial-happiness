@@ -1,13 +1,30 @@
 {
   "name": "wheeljson",
   "version": "1.0.0",
-  "description": "Star‑field wheel spinner",
+  "description": "Star-field wheel spinner",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package": "electron-packager . WheelJSON --platform=win32 --arch=x64 --out=dist --overwrite",
+    "dist": "electron-builder"
   },
   "devDependencies": {
     "electron": "^25.0.0",
-    "electron-packager": "^17.1.2"
+    "electron-packager": "^17.1.2",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.yourcompany.wheeljson",
+    "productName": "WheelJSON",
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icon.ico"
+    }
   }
 }

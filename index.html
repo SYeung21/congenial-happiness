@@ -1,11 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wheel Spinner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
 <body>
   <div class="container">
     <h1>Wheel Spinner</h1>
 
-    <!-- where options get added -->
+    <!-- Bulk-paste import section -->
+    <div class="import-section">
+      <textarea
+        id="bulkInput"
+        placeholder="Paste lines like `19% Eevee` here…"
+        rows="6"
+      ></textarea>
+      <button id="importBtn" class="button">Import List</button>
+    </div>
+
+    <!-- This single container will hold all dynamically added option rows -->
     <div id="entries"></div>
 
-    <!-- controls: add row, set rolls, spin -->
+    <!-- Controls: add single, set rolls, spin -->
     <div class="controls">
       <button id="addBtn" class="button">+ Add Option</button>
       <label>
@@ -15,9 +32,11 @@
       <button id="rollBtn" class="button">Roll</button>
     </div>
 
-    <!-- where results are shown -->
+    <!-- Where the results and counts appear -->
     <div id="results" class="results"></div>
   </div>
 
+  <!-- Load the renderer script last -->
   <script src="renderer.js"></script>
 </body>
+</html>

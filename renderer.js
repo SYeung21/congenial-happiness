@@ -1,68 +1,95 @@
+// Grab our elements
 const entries    = document.getElementById('entries');
 const addBtn     = document.getElementById('addBtn');
+const importBtn  = document.getElementById('importBtn');
+const bulkInput  = document.getElementById('bulkInput');
 const rollBtn    = document.getElementById('rollBtn');
 const rollCount  = document.getElementById('rollCount');
 const resultsDiv = document.getElementById('results');
 
-// Add a new option row
+// Function to create one option row
 function addOption(name = '', pct = '') {
   const row = document.createElement('div');
   row.classList.add('row');
   row.innerHTML = `
-    <input type="text" placeholder="Option name" class="opt-name" value="${name}">
-    <input type="number" placeholder="%" class="opt-pct" value="${pct}" min="0" step="0.01">
+    <input type="text" class="opt-name" placeholder="Option name" value="${name}">
+    <input type="number" class="opt-pct" placeholder="%" min="0" step="0.01" value="${pct}">
     <button class="remove">&times;</button>
   `;
   entries.append(row);
   row.querySelector('.remove')
-     .addEventListener('click', ()=> row.remove());
+     .addEventListener('click', () => row.remove());
 }
 
-// Initial two blank options
+// Start with two blank rows
 addOption();
 addOption();
 
+// Single-add button
 addBtn.onclick = () => addOption();
 
-rollBtn.onclick = () => {
-  // 1) Gather names & percentages
-  const names = [...document.querySelectorAll('.opt-name')].map(i=>i.value.trim());
-  const pcts  = [...document.querySelectorAll('.opt-pct')].map(i=>parseFloat(i.value) || 0);
+// —— Bulk-import handler —— 
+importBtn.onclick = () => {
+  const text = bulkInput.value.trim();
+  if (!text) return alert('Please paste at least one line.');
 
-  const total = pcts.reduce((a,b)=>a+b, 0);
-  if (total.toFixed(2) !== '100.00') {
-    return alert('⚠️ Sum of percentages must be 100 (got '+total+')');
+  const lines = text.split(/\r?\n/);
+  const parsed = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    const m = line.match(/^(\d+(?:\.\d+)?)%\s+(.+)$/);
+    if (!m) {
+      return alert(`Line ${i+1} not in “19% Eevee” format:\n${line}`);
+    }
+    parsed.push({ pct: m[1], name: m[2] });
   }
 
-  // 2) Build choices array and initialize counts
-  const choices = names.map((n,i)=>({ name:n, pct:pcts[i] }));
-  const counts  = {};
-  choices.forEach(c => counts[c.name] = 0);
+  // Clear existing entries & repopulate
+  entries.innerHTML = '';
+  parsed.forEach(({ name, pct }) => addOption(name, pct));
+  bulkInput.value = '';
+};
 
-  // 3) Perform rolls
-  const rolls = parseInt(rollCount.value) || 1;
-  const out   = [];
+// Roll-wheel handler
+rollBtn.onclick = () => {
+  const names = [...document.querySelectorAll('.opt-name')].map(i => i.value.trim());
+  const pcts  = [...document.querySelectorAll('.opt-pct')].map(i => parseFloat(i.value) || 0);
+  const total = pcts.reduce((a,b) => a+b, 0);
+
+  if (total.toFixed(2) !== '100.00') {
+    return alert(`Percentages must sum to 100 (current total: ${total})`);
+  }
+
+  const choices = names.map((n,i) => ({ name: n, pct: pcts[i] }));
+  const counts  = Object.fromEntries(names.map(n => [n, 0]));
+  const rolls   = parseInt(rollCount.value, 10) || 1;
+  const out     = [];
+
   for (let r = 0; r < rolls; r++) {
-    const rnd = Math.random() * 100;
+    const rnd = Math.random()*100;
     let cum = 0;
     for (const c of choices) {
       cum += c.pct;
       if (rnd <= cum) {
         out.push(`Roll ${r+1}: ${c.name}`);
-        counts[c.name] += 1;
+        counts[c.name]++;
         break;
       }
     }
   }
 
-  // 4) Render results + counts
+  // Render results + tally
   const resultsHtml = out.join('<br>');
   const countsHtml  = Object.entries(counts)
-    .map(([name, cnt]) => `<strong>${name}:</strong> ${cnt}`)
+    .map(([name,c]) => `<strong>${name}:</strong> ${c}`)
     .join('<br>');
 
-  resultsDiv.innerHTML = 
-    `<div class="roll-results">${resultsHtml}</div>
-     <hr>
-     <div class="roll-counts">${countsHtml}</div>`;
+  resultsDiv.innerHTML = `
+    <div class="roll-results">${resultsHtml}</div>
+    <hr>
+    <div class="roll-counts">${countsHtml}</div>
+  `;
 };

@@ -119,4 +119,17 @@
     max-height: 120px;
     overflow-y: auto;
   }
+  /* Example styling to match existing input fields */
+  #bulkInput {
+    width: 100%;               /* Make textarea full width of its container */
+    padding: 8px;              /* Same padding as text inputs */
+    margin: 5px 0;             /* Similar margin to space it out */
+    box-sizing: border-box;    /* Include padding in the total width */
+    font: inherit;             /* Use same font as the app */
+    border: 1px solid #ccc;    /* Match border style of inputs */
+    border-radius: 4px;        /* Match border radius of inputs */
+    background: #fff;          /* or whatever background is used */
+    color: #333;               /* match text color */
+  }
+
   
